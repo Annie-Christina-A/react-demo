@@ -1,0 +1,96 @@
+pipeline {
+    agent any
+    environment {
+        NODEJS_HOME = tool name: 'NodeJS', type: 'jenkins.plugins.nodejs.tools.NodeJSInstallation'
+        PATH = "${NODEJS_HOME}/bin:${env.PATH}"
+        REPO_URL = 'https://github.com/Annie-Christina-A/react_project.git'
+        NODE_OPTIONS = "--openssl-legacy-provider"
+    }
+    stages {
+        stage('Checkout & Build React App') {
+            steps {
+                git branch: 'main', credentialsId: 'github-id', url: "${REPO_URL}"
+                echo 'Installing dependencies...'
+                sh 'ls -la'
+                sh 'npm -v'
+                sh 'node -v'
+                sh 'npm install'
+                echo 'Building the React app...'
+                sh 'npm run build'
+                stash name: 'react-build', includes: 'build/**'
+            }
+        }
+        stage('Deploy to All Agents') {
+            parallel {
+                stage('Deploy to Agent 1') {
+                    agent { label 'windows' }
+                    environment {
+                        PATH = "C:\\Windows\\System32;${NODEJS_HOME}\\bin;${env.PATH}"
+                    }
+                    steps {
+                        unstash 'react-build'
+                        bat 'if exist C:\\inetpub\\wwwroot\\my-react-app rd /s /q C:\\inetpub\\wwwroot\\my-react-app'
+                        bat 'mkdir C:\\inetpub\\wwwroot\\my-react-app'
+                        bat 'xcopy build\\* C:\\inetpub\\wwwroot\\my-react-app /E /I /Y'
+                    }
+                }
+                stage('Deploy to Agent 2') {
+                    agent { label 'Shahana-Agent' }
+                    environment {
+                        PATH = "C:\\Windows\\System32;${NODEJS_HOME}\\bin;${env.PATH}"
+                    }
+                    steps {
+                        unstash 'react-build'
+                        bat 'if exist C:\\inetpub\\wwwroot\\my-react-app rd /s /q C:\\inetpub\\wwwroot\\my-react-app'
+                        bat 'mkdir C:\\inetpub\\wwwroot\\my-react-app'
+                        bat 'xcopy build\\* C:\\inetpub\\wwwroot\\my-react-app /E /I /Y'
+                    }
+                }
+                stage('Deploy to Agent 3') {
+                    agent { label 'Archana-agent' }
+                    environment {
+                        PATH = "C:\\Windows\\System32;${NODEJS_HOME}\\bin;${env.PATH}"
+                    }
+                    steps {
+                        unstash 'react-build'
+                        bat 'if exist C:\\inetpub\\wwwroot\\my-react-app rd /s /q C:\\inetpub\\wwwroot\\my-react-app'
+                        bat 'mkdir C:\\inetpub\\wwwroot\\my-react-app'
+                        bat 'xcopy build\\* C:\\inetpub\\wwwroot\\my-react-app /E /I /Y'
+                    }
+                }
+                stage('Deploy to Agent 4') {
+                    agent { label 'Dharshanads-agent' }
+                    environment {
+                        PATH = "C:\\Windows\\System32;${NODEJS_HOME}\\bin;${env.PATH}"
+                    }
+                    steps {
+                        unstash 'react-build'
+                        bat 'if exist C:\\inetpub\\wwwroot\\my-react-app rd /s /q C:\\inetpub\\wwwroot\\my-react-app'
+                        bat 'mkdir C:\\inetpub\\wwwroot\\my-react-app'
+                        bat 'xcopy build\\* C:\\inetpub\\wwwroot\\my-react-app /E /I /Y'
+                    }
+                }
+                stage('Deploy to Agent 5') {
+                    agent { label 'Annie-Agent' }
+                    environment {
+                        PATH = "C:\\Windows\\System32;${NODEJS_HOME}\\bin;${env.PATH}"
+                    }
+                    steps {
+                        unstash 'react-build'
+                        bat 'if exist C:\\inetpub\\wwwroot\\my-react-app rd /s /q C:\\inetpub\\wwwroot\\my-react-app'
+                        bat 'mkdir C:\\inetpub\\wwwroot\\my-react-app'
+                        bat 'xcopy build\\* C:\\inetpub\\wwwroot\\my-react-app /E /I /Y'
+                    }
+                }
+            }
+        }
+    }
+    post {
+        success {
+            echo ':white_check_mark: React app successfully deployed to all 5 agents!'
+        }
+        failure {
+            echo ':x: Deployment failed. Please check logs on respective agents.'
+        }
+    }
+}

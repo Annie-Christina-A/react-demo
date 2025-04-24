@@ -3,7 +3,7 @@ pipeline {
     environment {
         NODEJS_HOME = tool name: 'NodeJS', type: 'jenkins.plugins.nodejs.tools.NodeJSInstallation'
         PATH = "${NODEJS_HOME}/bin:${env.PATH}"
-        REPO_URL = 'https://github.com/Archanaa579/react-project.git'
+        REPO_URL = 'https://github.com/Annie-Christina-A/react-demo.git'
         REACT_APP_DIR = 'react-hello-world-master'
         NODE_OPTIONS = "--openssl-legacy-provider"
     }
@@ -11,7 +11,7 @@ pipeline {
         stage('Checkout & Build React App') {
             // agent { label 'windows' } // Build on any one node (change label if needed)
             steps {
-                git branch: 'main', credentialsId: 'github-token', url: 'https://github.com/Archanaa579/react-project.git'
+                git branch: 'main', credentialsId: 'github-id', url: 'https://github.com/Annie-Christina-A/react-demo.git'
                 dir("${REACT_APP_DIR}") {
                     sh 'npm install'
                     sh 'npm run build'
